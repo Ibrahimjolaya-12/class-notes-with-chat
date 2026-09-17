@@ -257,32 +257,35 @@ const AIChat = ({ currentSubject }) => {
     }
   };
 
+ // AIChat.jsx ke andar main return div ki styling ko is se replace karein:
+
   return (
-  <div
-    className="ai-chat-wrapper"
-    style={{
-      display: "flex",
-      flexDirection: "column",
-      // 👇 Mobile par bottom bar ke liye dynamic height aur margin
-      height: isMobile ? "calc(100dvh - 145px)" : "calc(100vh - 84px)",
-      marginBottom: isMobile ? "68px" : "0px",
-      maxWidth: "1050px",
-      width: "100%",
-      margin: isMobile ? "0 auto 68px auto" : "0 auto",
-      padding: isMobile ? "10px 10px" : "18px 24px",
-      backgroundColor: isDarkMode ? "#08091a" : "#ffffff",
-      border: isDarkMode
-        ? "1px solid rgba(255, 255, 255, 0.08)"
-        : "1px solid #e2e8f0",
-      borderRadius: "16px",
-      boxShadow: isDarkMode
-        ? "0 10px 30px rgba(0, 0, 0, 0.6)"
-        : "0 4px 20px rgba(0, 0, 0, 0.05)",
-      overflow: "hidden",
-      boxSizing: "border-box",
-      transition: "background-color 0.3s ease, border-color 0.3s ease",
-    }}
-  >
+    <div
+      className="ai-chat-wrapper"
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        // 👈 Tablets aur Mobile dono ke liye dynamic height adjustment
+        height: window.innerWidth <= 1024 ? "calc(100dvh - 130px)" : "calc(100vh - 84px)",
+        marginBottom: window.innerWidth <= 1024 ? "75px" : "0px",
+        maxWidth: "1050px",
+        width: "100%",
+        margin: window.innerWidth <= 1024 ? "0 auto 75px auto" : "0 auto",
+        padding: window.innerWidth <= 1024 ? "12px 14px" : "18px 24px",
+        backgroundColor: isDarkMode ? "#08091a" : "#ffffff",
+        border: isDarkMode
+          ? "1px solid rgba(255, 255, 255, 0.08)"
+          : "1px solid #e2e8f0",
+        borderRadius: "16px",
+        boxShadow: isDarkMode
+          ? "0 10px 30px rgba(0, 0, 0, 0.6)"
+          : "0 4px 20px rgba(0, 0, 0, 0.05)",
+        overflow: "hidden",
+        boxSizing: "border-box",
+        transition: "background-color 0.3s ease, border-color 0.3s ease",
+      }}
+    >
+      {/* Baaki ka saara code same rahega */}
       {/* AI Header */}
       <div
         className="ai-header"

@@ -12,26 +12,23 @@ export const uploadAvatar = async (req, res) => {
       return res.status(400).json({ success: false, message: "Please select an image!" });
     }
 
-    // 1. Cloudinary par upload karo
     const uploadedResponse = await uploadOnCloudinary(localFilePath);
     if (!uploadedResponse) {
       return res.status(500).json({ success: false, message: "Upload to Cloudinary failed" });
     }
 
-    // 2. Agar purana avatar tha to Cloudinary se clean karo
     const oldAvatar = await Avatar.findOne({ user: userId });
     if (oldAvatar?.publicId) {
       await cloudinary.uploader.destroy(oldAvatar.publicId);
     }
 
-    // 3. One-Liner Upsert: Hai to update, nahi hai to create
     const avatar = await Avatar.findOneAndUpdate(
       { user: userId },
       { 
         avatarUrl: uploadedResponse.secure_url, 
         publicId: uploadedResponse.public_id 
       },
-      { new: true, upsert: true } // 👈 Asal magic yeh hai
+      { new: true, upsert: true }
     );
 
     return res.status(200).json({
@@ -44,19 +41,11 @@ export const uploadAvatar = async (req, res) => {
   }
 };
 
-
-
-
-
-
 export const getMyAvatar = async (req, res) => {
   try {
     const userId = req.user?.id || req.user?._id;
-
-    // 1. Database mein record dhoondo
     const avatar = await Avatar.findOne({ user: userId });
 
-    // 2. Agar record mil gaya, to uska URL bhej do
     if (avatar) {
       return res.status(200).json({
         success: true,
@@ -64,12 +53,10 @@ export const getMyAvatar = async (req, res) => {
       });
     }
 
-    // 3. Agar record nahi mila (naya user hai), to null bhej do
     return res.status(200).json({
       success: true,
       avatar: null,
     });
-
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -77,9 +64,6 @@ export const getMyAvatar = async (req, res) => {
     });
   }
 };
-
-
-
 
 export const updateSemester = async (req, res) => {
   try {
@@ -89,8 +73,6 @@ export const updateSemester = async (req, res) => {
     }
 
     const userId = req.user?.id || req.user?._id;
-
-    // Naya user create nahi karna, UPDATE karna hai
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       { semester },
@@ -103,6 +85,44 @@ export const updateSemester = async (req, res) => {
     });
   } catch (error) {
     console.error("SEMESTER UPDATE ERROR:", error);
+    return res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+export const updateProfile = async (req, res) => {
+  try {
+    const { name, semester } = req.body;
+    const userId = req.user?.id || req.user?._id;
+
+    if (!name || !name.trim()) {
+      return res.status(400).json({ success: false, message: "Name is required" });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { 
+        name: name.trim(), 
+        ...(semester && { semester }) 
+      },
+      { new: true }
+    ).select("-password");
+
+    if (!updatedUser) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      user: {
+        _id: updatedUser._id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        semester: updatedUser.semester,
+      },
+    });
+  } catch (error) {
+    console.error("PROFILE UPDATE ERROR:", error);
     return res.status(500).json({ success: false, message: "Internal server error" });
   }
 };

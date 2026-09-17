@@ -1,12 +1,13 @@
 import express from "express";
+import { uploadAvatar, getMyAvatar, updateSemester, updateProfile } from "../Controller/Avatar.controller.js";
 import auth from "../Middlewares/Auth.middleware.js";
-import { getMyAvatar, uploadAvatar, updateSemester } from "../Controller/Avatar.controller.js";
 import { upload } from "../Middlewares/Multer.middleware.js";
 
 const router = express.Router();
 
-router.post("/upload", auth, upload.single("avatar"), uploadAvatar);
 router.get("/me", auth, getMyAvatar);
-router.put("/sem", auth, updateSemester); // 👈 PUT route
+router.post("/upload", auth, upload.single("avatar"), uploadAvatar);
+router.put("/sem", auth, updateSemester);
+router.put("/update-profile", auth, updateProfile);
 
 export default router;

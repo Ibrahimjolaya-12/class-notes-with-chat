@@ -11,6 +11,7 @@ import {
   Grid,
   Modal,
   Pagination,
+  notification,
 } from "antd";
 import {
   PlusOutlined,
@@ -48,6 +49,9 @@ const ShowTodos = () => {
   const [selectedTodo, setSelectedTodo] = useState(null);
 
   const screens = useBreakpoint();
+  
+  // 👈 Responsive Check: Agar screen 'lg' (Large/Desktop 992px+) se choti hai (yani Tablet ya Mobile), toh cards dikhenge, warna Desktop Table!
+  const isCardView = !screens.lg; 
   const isMobile = !screens.sm;
 
   const fetchTodos = async (status = "all") => {
@@ -117,6 +121,43 @@ const ShowTodos = () => {
     fetchTodos();
   }, []);
 
+  // To-Do Due Date Reminder Hook Logic
+  useEffect(() => {
+    const checkDueDates = () => {
+      if (!todos || todos.length === 0) return;
+
+      const now = new Date();
+
+      todos.forEach((todo) => {
+        const status = (todo.status || "").toLowerCase();
+        if (status === "completed" || status === "complete") return;
+
+        if (todo.dueDate) {
+          const dueDate = new Date(todo.dueDate);
+          const isToday =
+            dueDate.getDate() === now.getDate() &&
+            dueDate.getMonth() === now.getMonth() &&
+            dueDate.getFullYear() === now.getFullYear();
+
+          if (isToday) {
+            notification.warning({
+              message: `⏰ Task Due Today!`,
+              description: `Your task "${todo.title}" is due today. Please complete it on time!`,
+              placement: "topRight",
+              duration: 8,
+            });
+          }
+        }
+      });
+    };
+
+    checkDueDates();
+    const intervalTime = 30 * 60 * 1000;
+    const timer = setInterval(checkDueDates, intervalTime);
+
+    return () => clearInterval(timer);
+  }, [todos]);
+
   // Safe Pagination Slice Logic
   const safeTodos = Array.isArray(todos) ? todos : [];
   const startIndex = (currentPage - 1) * pageSize;
@@ -171,10 +212,9 @@ const ShowTodos = () => {
   };
 
   return (
-    // ✅ Is se replace karein:
     <div
       style={{
-        padding: isMobile ? "12px 12px 90px 12px" : "24px", // 👈 Mobile par 90px bottom padding de di taake bar ke upar rahe
+        padding: isCardView ? "16px 16px 95px 16px" : "24px",
         maxWidth: "1200px",
         margin: "0 auto",
         width: "100%",
@@ -287,13 +327,13 @@ const ShowTodos = () => {
                 Hurray! You don't have any pending work. 🥳
               </p>
             </div>
-          ) : isMobile ? (
-            /* Mobile Cards View */
+          ) : isCardView ? (
+            /* 📱 Tablet & Mobile Cards View (2 Columns on tablet, 1 on mobile) */
             <div
               style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "12px",
+                display: "grid",
+                gridTemplateColumns: isMobile ? "1fr" : "repeat(2, 1fr)",
+                gap: "14px",
               }}
             >
               {paginatedTodos.map((todo, index) => (
@@ -305,59 +345,76 @@ const ShowTodos = () => {
                       ? "1px solid #1c234a"
                       : "1px solid #e2e8f0",
                     borderRadius: "12px",
-                    padding: "14px 16px",
+                    padding: "16px",
                     boxShadow: isDarkMode
                       ? "none"
                       : "0 2px 8px rgba(0,0,0,0.04)",
                     transition: "all 0.3s ease",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
                   }}
                 >
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "flex-start",
-                      justifyContent: "space-between",
-                      gap: "10px",
-                      marginBottom: "8px",
-                    }}
-                  >
-                    <h4
-                      onClick={() => handleOpenViewModal(todo)}
+                  <div>
+                    <div
                       style={{
-                        margin: 0,
-                        color: isDarkMode ? "#ffffff" : "#0f172a",
-                        fontSize: "15px",
-                        fontWeight: 600,
-                        lineHeight: 1.4,
-                        cursor: "pointer",
-                        transition: "color 0.2s ease",
+                        display: "flex",
+                        alignItems: "flex-start",
+                        justifyContent: "space-between",
+                        gap: "10px",
+                        marginBottom: "8px",
                       }}
-                      onMouseEnter={(e) =>
-                        (e.currentTarget.style.color = "#6366f1")
-                      }
-                      onMouseLeave={(e) =>
-                        (e.currentTarget.style.color = isDarkMode
-                          ? "#ffffff"
-                          : "#0f172a")
-                      }
-                      title="Click to view details"
                     >
-                      {todo.title}
-                    </h4>
-                    {renderStatusTag(todo.status)}
-                  </div>
+                      <h4
+                        onClick={() => handleOpenViewModal(todo)}
+                        style={{
+                          margin: 0,
+                          color: isDarkMode ? "#ffffff" : "#0f172a",
+                          fontSize: "15px",
+                          fontWeight: 600,
+                          lineHeight: 1.4,
+                          cursor: "pointer",
+                          transition: "color 0.2s ease",
+                        }}
+                        onMouseEnter={(e) =>
+                          (e.currentTarget.style.color = "#6366f1")
+                        }
+                        onMouseLeave={(e) =>
+                          (e.currentTarget.style.color = isDarkMode
+                            ? "#ffffff"
+                            : "#0f172a")
+                        }
+                        title="Click to view details"
+                      >
+                        {todo.title}
+                      </h4>
+                      {renderStatusTag(todo.status)}
+                    </div>
 
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "4px",
-                      marginBottom: "12px",
-                      fontSize: "12.5px",
-                      color: isDarkMode ? "#9ca3af" : "#64748b",
-                    }}
-                  >
-                    {todo.location && (
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "4px",
+                        marginBottom: "12px",
+                        fontSize: "12.5px",
+                        color: isDarkMode ? "#9ca3af" : "#64748b",
+                      }}
+                    >
+                      {todo.location && (
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "6px",
+                          }}
+                        >
+                          <EnvironmentOutlined
+                            style={{ color: isDarkMode ? "#64748b" : "#94a3b8" }}
+                          />
+                          <span>{todo.location}</span>
+                        </div>
+                      )}
                       <div
                         style={{
                           display: "flex",
@@ -365,31 +422,19 @@ const ShowTodos = () => {
                           gap: "6px",
                         }}
                       >
-                        <EnvironmentOutlined
+                        <CalendarOutlined
                           style={{ color: isDarkMode ? "#64748b" : "#94a3b8" }}
                         />
-                        <span>{todo.location}</span>
+                        <span>
+                          {todo.dueDate
+                            ? new Date(todo.dueDate).toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                              })
+                            : "No deadline"}
+                        </span>
                       </div>
-                    )}
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                      }}
-                    >
-                      <CalendarOutlined
-                        style={{ color: isDarkMode ? "#64748b" : "#94a3b8" }}
-                      />
-                      <span>
-                        {todo.dueDate
-                          ? new Date(todo.dueDate).toLocaleDateString("en-US", {
-                              month: "short",
-                              day: "numeric",
-                              year: "numeric",
-                            })
-                          : "No deadline"}
-                      </span>
                     </div>
                   </div>
 
@@ -483,7 +528,7 @@ const ShowTodos = () => {
               ))}
             </div>
           ) : (
-            /* Desktop Table View */
+            /* 💻 Desktop Table View (Laptop & Large Screens par chalega) */
             <div
               style={{
                 backgroundColor: isDarkMode ? "#0d1026" : "#ffffff",

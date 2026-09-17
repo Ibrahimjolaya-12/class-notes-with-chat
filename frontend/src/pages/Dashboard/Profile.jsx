@@ -84,16 +84,20 @@ const Profile = () => {
     return false;
   };
 
-  // 3. Save Changes
+  // 3. Save Changes (Fixed & Safely Handled)
   const handleSaveChanges = async () => {
     const token = localStorage.getItem("token");
     if (!token) return navigate("/auth/login");
+
+    if (!name.trim()) {
+      return message.error("Name cannot be empty!");
+    }
 
     try {
       setLoading(true);
       const headers = { Authorization: `Bearer ${token}` };
 
-      // Step A: Upload Image
+      // Step A: Upload Image (Agar select ki hai)
       if (selectedFile) {
         const data = new FormData();
         data.append("avatar", selectedFile);
@@ -105,27 +109,32 @@ const Profile = () => {
         });
       }
 
-      // Step B: Update Semester
-      const semRes = await axios.put(
-        `${BACKEND_URL}/api/avatar/sem`,
-        { semester },
+      // Step B: Update Name & Semester in real-time
+      const profileRes = await axios.put(
+        // `${BACKEND_URL}/api/avatar/update-profile`,
+        `http://localhost:5000/api/avatar/update-profile`,
+        { name: name.trim(), semester },
         { headers }
       );
 
-      const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-      localStorage.setItem(
-        "user",
-        JSON.stringify({
-          ...storedUser,
-          name,
-          semester: semRes.data?.semester || semester,
-        })
-      );
+      if (profileRes.data?.success) {
+        const updatedUserData = profileRes.data.user || {};
+        const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+        
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            ...storedUser,
+            name: updatedUserData.name || name,
+            semester: updatedUserData.semester || semester,
+          })
+        );
 
-      message.success("Profile updated successfully!");
-      navigate("/dashboard");
+        message.success("Profile updated successfully!");
+        navigate("/dashboard");
+      }
     } catch (err) {
-      console.error(err);
+      console.error("Profile update error details:", err.response || err);
       message.error(err.response?.data?.message || "Failed to update profile!");
     } finally {
       setLoading(false);
