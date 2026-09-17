@@ -91,6 +91,7 @@ if (process.env.NODE_ENV !== "production" && !process.env.VERCEL) {
   );
 }
 
+//routes
 app.use("/api/auth", userRouter);
 app.use("/api/subjects", subjectRouter);
 app.use("/api/todos", todoRouter);
