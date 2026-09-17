@@ -23,7 +23,7 @@ import axios from "axios";
 import { useTheme } from "../../context/ThemeContext";
 
 const { useBreakpoint } = Grid;
-const BACKEND_URL = "https://class-notes-backend.vercel.app";
+const BACKEND_URL = "https://class-notes-with-chat-production.up.railway.app";
 // const BACKEND_URL = "http://localhost:5000";
 
 const Profile = () => {

@@ -8,7 +8,7 @@ import { useTheme } from "../../context/ThemeContext"
 const { Title } = Typography
 const { useBreakpoint } = Grid
 
-const BACKEND_URL = "https://class-notes-backend.vercel.app"
+const BACKEND_URL = "https://class-notes-with-chat-production.up.railway.app";
 // const BACKEND_URL = "http://localhost:5000"; // ya jo bhi port tumhara local backend use kar raha hai
 
 const Register = () => {
