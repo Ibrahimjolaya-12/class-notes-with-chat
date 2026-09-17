@@ -41,23 +41,13 @@ const io = new Server(server, {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:3000",
-  "https://class-notes-edu.vercel.app",
-  "https://class-notes-guard.vercel.app", // 👈 Yeh wala naya domain add kar do
-];
-
+// Fully open and flexible CORS policy for production
 app.use(
   cors({
-    origin: (origin, callback) => {
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
-        return callback(null, true);
-      }
-      return callback(null, false);
-    },
+    origin: true,
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
@@ -210,7 +200,6 @@ io.on("connection", (socket) => {
   });
 });
 
-// Server listen active for Railway production container
 const port = process.env.PORT || 5000;
 server.listen(port, () => {
   console.log(`Server & Socket.io running on port ${port}`);
