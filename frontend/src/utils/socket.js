@@ -1,10 +1,10 @@
 import { io } from "socket.io-client";
 
-// Backend URL jahan socket server chal raha hai
-const BACKEND_URL = "https://class-notes-with-chat-production.up.railway.app"; 
+const BACKEND_URL = import.meta.env.VITE_API_URL || "https://class-notes-with-chat-production.up.railway.app"; 
 
-// Socket client instance initialize karna
 export const socket = io(BACKEND_URL, {
-  autoConnect: true, // Auto connect enable rakha hai
-  transports: ["websocket"],
+  autoConnect: true,
+  transports: ["polling", "websocket"], // 👈 Polling pehle rakho taake Railway connection establish kar sakay
+  secure: true,
+  rejectUnauthorized: false,
 });
