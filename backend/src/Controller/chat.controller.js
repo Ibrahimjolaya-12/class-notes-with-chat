@@ -4,7 +4,6 @@ import Message from "../Models/Message.js";
 import Avatar from "../Models/Avatar.Model.js";
 import { uploadOnCloudinary } from "../Utils/Cloudinary.js";
 
-// Helper: User ke sath Avatar Collection se URL link karna
 const attachAvatars = async (users) => {
   const isArray = Array.isArray(users);
   const userList = isArray ? users : [users];
@@ -23,7 +22,7 @@ const attachAvatars = async (users) => {
   return isArray ? result : result[0];
 };
 
-// 1. Search Users
+// 1. Search Users (Name, Email, AG Number)
 export const searchUser = async (req, res) => {
   try {
     const { query } = req.query;
@@ -32,8 +31,12 @@ export const searchUser = async (req, res) => {
 
     const users = await User.find({
       _id: { $ne: myId },
-      $or: [{ email: { $regex: query, $options: "i" } }, { name: { $regex: query, $options: "i" } }]
-    }).select("name email semester");
+      $or: [
+        { email: { $regex: query, $options: "i" } },
+        { name: { $regex: query, $options: "i" } },
+        { agNumber: { $regex: query, $options: "i" } }
+      ]
+    }).select("name email agNumber semester");
 
     const usersWithAvatars = await attachAvatars(users);
     return res.status(200).json({ success: true, users: usersWithAvatars });
@@ -49,15 +52,14 @@ export const accessDirectChat = async (req, res) => {
     const myId = req.user?._id || req.user?.id;
     if (!recipientId) return res.status(400).json({ success: false, message: "Recipient required" });
 
-    // 👈 "name email semester" select kiya yahan
     let chatRoom = await ChatRoom.findOne({
       type: "direct",
       participants: { $all: [myId, recipientId] }
-    }).populate("participants", "name email semester");
+    }).populate("participants", "name email agNumber semester");
 
     if (!chatRoom) {
       chatRoom = await ChatRoom.create({ type: "direct", participants: [myId, recipientId] });
-      chatRoom = await ChatRoom.findById(chatRoom._id).populate("participants", "name email semester");
+      chatRoom = await ChatRoom.findById(chatRoom._id).populate("participants", "name email agNumber semester");
     }
 
     const populatedParticipants = await attachAvatars(chatRoom.participants);
@@ -70,13 +72,12 @@ export const accessDirectChat = async (req, res) => {
   }
 };
 
-// 3. Get User Chats (With Last Message Time, Unread Counts, Avatars & Semester)
+// 3. Get User Chats
 export const getUserChats = async (req, res) => {
   try {
     const myId = req.user?._id || req.user?.id;
-    // 👈 "name email semester" select kiya yahan bhi
     const chats = await ChatRoom.find({ participants: myId })
-      .populate("participants", "name email semester")
+      .populate("participants", "name email agNumber semester")
       .sort({ updatedAt: -1 });
 
     const formattedChats = await Promise.all(
@@ -84,12 +85,10 @@ export const getUserChats = async (req, res) => {
         const plainChat = chat.toObject();
         plainChat.participants = await attachAvatars(plainChat.participants);
 
-        // Last message & time fetch
         const lastMsg = await Message.findOne({ chatRoom: chat._id }).sort({ createdAt: -1 });
         plainChat.lastMessage = lastMsg ? (lastMsg.messageType === "image" ? "📷 Photo" : lastMsg.messageType === "pdf" ? "📄 PDF Document" : lastMsg.text) : "";
         plainChat.lastMessageTime = lastMsg ? lastMsg.createdAt : chat.updatedAt;
 
-        // Count unread messages (sender != myId)
         const unreadCount = await Message.countDocuments({
           chatRoom: chat._id,
           sender: { $ne: myId },
@@ -113,9 +112,8 @@ export const getChatMessages = async (req, res) => {
     const { chatRoomId } = req.params;
     const myId = req.user?._id || req.user?.id;
 
-    // 👈 Sender ke andar bhi semester add kar diya
     const messages = await Message.find({ chatRoom: chatRoomId })
-      .populate("sender", "name email semester")
+      .populate("sender", "name email agNumber semester")
       .sort({ createdAt: 1 });
 
     await Message.updateMany(
@@ -139,7 +137,6 @@ export const getChatMessages = async (req, res) => {
   }
 };
 
-// 5. Delete Message Controller
 export const deleteMessage = async (req, res) => {
   try {
     const { messageId } = req.params;
@@ -164,7 +161,6 @@ export const deleteMessage = async (req, res) => {
   }
 };
 
-// Clear all messages in room
 export const clearChat = async (req, res) => {
   try {
     const { chatRoomId } = req.params;
@@ -175,7 +171,6 @@ export const clearChat = async (req, res) => {
   }
 };
 
-// 6. Upload Chat File
 export const uploadChatFile = async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ success: false, message: "No file uploaded" });

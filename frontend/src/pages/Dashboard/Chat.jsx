@@ -32,12 +32,14 @@ import {
   DeleteFilled,
   PlayCircleOutlined,
   PauseCircleOutlined,
+  IdcardOutlined,
 } from "@ant-design/icons";
 import axios from "axios";
 import { socket } from "../../utils/socket";
 import { useTheme } from "../../context/ThemeContext";
 
 const BACKEND_URL = import.meta.env.VITE_API_URL || "https://class-notes-with-chat-production.up.railway.app";
+// const BACKEND_URL = "http://localhost:5000";
 const EMOJI_REACTIONS = ["👍", "❤️", "😂", "😮", "😢"];
 
 // Voice Note Bubble component
@@ -344,7 +346,13 @@ const Chat = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      if (res.data.success) setSearchResults(res.data.users);
+      if (res.data.success) {
+        // Prevent duplicate users in search results
+        const uniqueUsers = res.data.users.filter(
+          (v, i, a) => a.findIndex((t) => String(t._id) === String(v._id)) === i
+        );
+        setSearchResults(uniqueUsers);
+      }
     } catch (err) {
       console.error(err);
     }
@@ -591,7 +599,7 @@ const Chat = () => {
     otherParticipant?.avatar ||
     otherParticipant?.avatarUrl ||
     otherParticipant?.profilePic ||
-    "";
+    ";";
 
   return (
     <div
@@ -631,7 +639,7 @@ const Chat = () => {
           }}
         >
           <Input
-            placeholder="Search user by name or email..."
+            placeholder="Search user by name, email or AG number..."
             prefix={<SearchOutlined style={{ color: "#94a3b8" }} />}
             value={searchQuery}
             onChange={(e) => handleSearch(e.target.value)}
@@ -671,8 +679,8 @@ const Chat = () => {
                   <div style={{ fontWeight: 600, fontSize: "14px", textOverflow: "ellipsis", whiteSpace: "nowrap", overflow: "hidden" }}>
                     {user.name}
                   </div>
-                  <div style={{ fontSize: "11px", color: "#94a3b8", textOverflow: "ellipsis", whiteSpace: "nowrap", overflow: "hidden" }}>
-                    {user.email}
+                  <div style={{ fontSize: "11px", color: "#818cf8", fontWeight: 500, textOverflow: "ellipsis", whiteSpace: "nowrap", overflow: "hidden" }}>
+                    {user.agNumber ? `${user.agNumber} • ${user.email}` : user.email}
                   </div>
                 </div>
               </div>
@@ -765,7 +773,7 @@ const Chat = () => {
                         {chat.lastMessage ||
                           (chat.type === "group"
                             ? "Group Chat"
-                            : chatOtherUser?.email)}
+                            : chatOtherUser?.agNumber || chatOtherUser?.email)}
                       </span>
                     </div>
                   </div>
@@ -1790,7 +1798,7 @@ const Chat = () => {
               marginBottom: "6px",
             }}
           >
-            Academic Student
+            {otherParticipant?.agNumber || "Academic Student"}
           </span>
 
           <Tag
@@ -1820,6 +1828,22 @@ const Chat = () => {
               </div>
               <div style={{ fontSize: "13.5px", color: isDarkMode ? "#cbd5e1" : "#334155", fontWeight: 500, wordBreak: "break-all" }}>
                 {otherParticipant?.email || "No email available"}
+              </div>
+            </div>
+
+            <div
+              style={{
+                background: isDarkMode ? "#080816" : "#f8fafc",
+                border: isDarkMode ? "1px solid rgba(255, 255, 255, 0.08)" : "1px solid #e2e8f0",
+                borderRadius: "10px",
+                padding: "10px 14px",
+              }}
+            >
+              <div style={{ fontSize: "11px", color: "#94a3b8", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px", display: "flex", alignItems: "center", gap: "6px", marginBottom: "3px" }}>
+                <IdcardOutlined /> AG Number
+              </div>
+              <div style={{ fontSize: "13.5px", color: isDarkMode ? "#818cf8" : "#4f46e5", fontWeight: 600 }}>
+                {otherParticipant?.agNumber || "Not Assigned"}
               </div>
             </div>
 

@@ -14,6 +14,13 @@ const userSchema = new Schema(
       unique: true,
       required: [true, "Email is required"],
     },
+    agNumber: {
+      type: String,
+      unique: true,
+      sparse: true,
+      trim: true,
+      uppercase: true,
+    },
     password: {
       type: String,
       required: [true, "Password is required"],
@@ -26,7 +33,7 @@ const userSchema = new Schema(
     },
     semester: {
       type: String,
-      default: "Semester 1", // Default value taake khali hone par fail na ho
+      default: "Semester 1",
     },
   },
   {
