@@ -6,7 +6,7 @@ import dns from "node:dns";
 import cors from "cors";
 import path from "path";
 import Message from "./src/Models/Message.js";
-import ChatRoom from "./src/Models/ChatRoom.js"; // 👈 Added
+import ChatRoom from "./src/Models/ChatRoom.js";
 import Avatar from "./src/Models/Avatar.Model.js";
 import { fileURLToPath } from "url";
 
@@ -77,21 +77,20 @@ app.use(async (req, res, next) => {
   }
 });
 
-if (process.env.NODE_ENV !== "production" && !process.env.VERCEL) {
-  app.use(
-    "/uploads",
-    express.static(path.join(__dirname, "public/temp"), {
-      setHeaders: (res, filePath) => {
-        if (filePath.endsWith(".pdf")) {
-          res.setHeader("Content-Type", "application/pdf");
-          res.setHeader("Content-Disposition", "inline");
-        }
-      },
-    })
-  );
-}
+// Static uploads folder for local/Railway
+app.use(
+  "/uploads",
+  express.static(path.join(__dirname, "public/temp"), {
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith(".pdf")) {
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader("Content-Disposition", "inline");
+      }
+    },
+  })
+);
 
-//routes
+// Routes
 app.use("/api/auth", userRouter);
 app.use("/api/subjects", subjectRouter);
 app.use("/api/todos", todoRouter);
@@ -104,7 +103,7 @@ app.use("/api/chats", chatRoutes);
 app.get("/", (req, res) => {
   res.status(200).json({
     success: true,
-    message: "ClassNotes Backend Serverless API is running smoothly!",
+    message: "ClassNotes Backend Server is running smoothly on Railway!",
   });
 });
 
@@ -145,10 +144,8 @@ io.on("connection", (socket) => {
         fullMessage.sender.avatar = userAvatar?.avatarUrl || "";
       }
 
-      // Room participants ke liye emit
       io.to(chatRoomId).emit("receive_message", fullMessage);
 
-      // Room se bahar website ke baqi pages par baithe recipients ke liye direct socket emit
       const room = await ChatRoom.findById(chatRoomId);
       if (room && room.participants) {
         room.participants.forEach((pId) => {
@@ -212,11 +209,10 @@ io.on("connection", (socket) => {
   });
 });
 
-if (process.env.NODE_ENV !== "production" && !process.env.VERCEL) {
-  const port = process.env.PORT || 5000;
-  server.listen(port, () => {
-    console.log(`Server & Socket.io running on port ${port}`);
-  });
-}
+// Server listen active for Railway production container
+const port = process.env.PORT || 5000;
+server.listen(port, () => {
+  console.log(`Server & Socket.io running on port ${port}`);
+});
 
 export default app;
