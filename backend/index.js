@@ -45,6 +45,7 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
   "https://class-notes-edu.vercel.app",
+  "https://class-notes-guard.vercel.app", // 👈 Yeh wala naya domain add kar do
 ];
 
 app.use(
