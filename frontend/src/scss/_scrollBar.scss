@@ -1,0 +1,76 @@
+/* ===================================================
+   🎨 Global & Chat Theme-Aware Dynamic Scrollbar
+   =================================================== */
+
+// Root Theme Tokens for Scrollbar
+:root {
+  --scrollbar-track: #f1f5f9;
+  --scrollbar-thumb: #cbd5e1;
+  --scrollbar-thumb-hover: #6366f1;
+  --scrollbar-border: #e2e8f0;
+}
+
+body.dark-theme,
+html.dark {
+  --scrollbar-track: #080816;
+  --scrollbar-thumb: #252a4a;
+  --scrollbar-thumb-hover: #6366f1;
+  --scrollbar-border: rgba(255, 255, 255, 0.05);
+}
+
+// 1. Global Browser Scrollbar (Chrome, Edge, Safari, Brave)
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+  border-radius: 8px;
+  transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 8px;
+  border: 1px solid var(--scrollbar-border);
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    background: var(--scrollbar-thumb-hover);
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+  }
+
+  &:active {
+    background: #4f46e5;
+  }
+}
+
+// 2. Firefox Cross-Platform Support
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+// 3. Specifically for Inner Containers (AI Chat, Codeblocks, Lists)
+.chat-messages-area,
+.ai-chat-wrapper,
+.custom-doc-scrollbar {
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent; // Clean borderless look
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.28);
+    border-radius: 10px;
+    border: none;
+
+    &:hover {
+      background: #6366f1;
+    }
+  }
+}
