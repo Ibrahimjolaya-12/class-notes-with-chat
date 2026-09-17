@@ -37,7 +37,7 @@ import axios from "axios";
 import { socket } from "../../utils/socket";
 import { useTheme } from "../../context/ThemeContext";
 
-const BACKEND_URL = "http://localhost:5000";
+const BACKEND_URL = import.meta.env.VITE_API_URL || "https://class-notes-with-chat-production.up.railway.app";
 const EMOJI_REACTIONS = ["👍", "❤️", "😂", "😮", "😢"];
 
 // Voice Note Bubble component
@@ -131,7 +131,7 @@ const Chat = () => {
 
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
-  // 👈 Voice Recording States (Fixed Workflow)
+  // Voice Recording States
   const [isRecording, setIsRecording] = useState(false);
   const [recordedAudioBlob, setRecordedAudioBlob] = useState(null);
   const [recordedAudioUrl, setRecordedAudioUrl] = useState(null);
@@ -475,7 +475,6 @@ const Chat = () => {
     setActiveReactionMsgId(null);
   };
 
-  // 👈 Voice Recording: Start
   const startRecording = async () => {
     audioChunksRef.current = [];
     try {
@@ -485,7 +484,6 @@ const Chat = () => {
         if (event.data.size > 0) audioChunksRef.current.push(event.data);
       };
       
-      // Stop hone par abhi send nahi hoga, balkay Preview state mein save hoga
       mediaRecorderRef.current.onstop = () => {
         const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
         const audioUrl = URL.createObjectURL(audioBlob);
@@ -501,7 +499,6 @@ const Chat = () => {
     }
   };
 
-  // 👈 Voice Recording: Stop (Toggle click)
   const stopRecording = () => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
@@ -509,14 +506,12 @@ const Chat = () => {
     }
   };
 
-  // 👈 Discard Recorded Audio
   const cancelRecording = () => {
     setRecordedAudioBlob(null);
     setRecordedAudioUrl(null);
     setIsPreviewPlaying(false);
   };
 
-  // 👈 Send Recorded Audio to Server
   const sendRecordedAudio = async () => {
     if (!recordedAudioBlob || !activeChat) return;
 
@@ -1456,9 +1451,7 @@ const Chat = () => {
                 />
               </Tooltip>
 
-              {/* 👈 Recording / Preview UI in Input Bar */}
               {recordedAudioUrl ? (
-                /* AUDIO PREVIEW BAR (WhatsApp Style) */
                 <div
                   style={{
                     flex: 1,
@@ -1505,7 +1498,6 @@ const Chat = () => {
                   </Tooltip>
                 </div>
               ) : isRecording ? (
-                /* RECORDING ACTIVE PULSE BAR */
                 <div
                   style={{
                     flex: 1,
@@ -1536,7 +1528,6 @@ const Chat = () => {
                   Recording... Click mic again to stop
                 </div>
               ) : (
-                /* NORMAL TEXT INPUT */
                 <Input
                   placeholder="Type a message..."
                   value={inputText}
@@ -1554,7 +1545,6 @@ const Chat = () => {
                 />
               )}
 
-              {/* MIC BUTTON / SEND BUTTON TOGGLE */}
               {recordedAudioUrl ? (
                 <Button
                   type="primary"
@@ -1642,7 +1632,7 @@ const Chat = () => {
         )}
       </div>
 
-      {/* PDF Viewer Interactive Modal */}
+      {/* PDF Viewer Modal */}
       <Modal
         open={Boolean(previewPdfUrl)}
         onCancel={() => setPreviewPdfUrl(null)}

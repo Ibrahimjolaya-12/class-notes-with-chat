@@ -23,7 +23,7 @@ import { useTheme } from "../../context/ThemeContext";
 
 const { useBreakpoint } = Grid;
 
-const BACKEND_URL = "https://class-notes-backend.vercel.app";
+const BACKEND_URL = import.meta.env.VITE_API_URL || "https://class-notes-with-chat-production.up.railway.app";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -84,7 +84,7 @@ const Profile = () => {
     return false;
   };
 
-  // 3. Save Changes (Fixed & Safely Handled)
+  // 3. Save Changes
   const handleSaveChanges = async () => {
     const token = localStorage.getItem("token");
     if (!token) return navigate("/auth/login");
@@ -111,8 +111,7 @@ const Profile = () => {
 
       // Step B: Update Name & Semester in real-time
       const profileRes = await axios.put(
-        // `${BACKEND_URL}/api/avatar/update-profile`,
-        `http://localhost:5000/api/avatar/update-profile`,
+        `${BACKEND_URL}/api/avatar/update-profile`,
         { name: name.trim(), semester },
         { headers }
       );
