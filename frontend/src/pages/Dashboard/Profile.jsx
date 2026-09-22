@@ -116,7 +116,7 @@
 //       if (profileRes.data?.success) {
 //         const updatedUserData = profileRes.data.user || {};
 //         const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-        
+
 //         localStorage.setItem(
 //           "user",
 //           JSON.stringify({
@@ -345,8 +345,6 @@
 
 // export default Profile;
 
-
-
 import { useState, useEffect } from "react";
 import {
   Upload,
@@ -441,9 +439,9 @@ const Profile = () => {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.put(
-        `${BACKEND_URL}/api/auth/update-privacy`,
+        `${BACKEND_URL}/api/chats/update-privacy`, // ✅ Sahi URL
         { isPrivate: checked },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       if (res.data.success) {
         setIsPrivate(checked);
@@ -484,13 +482,13 @@ const Profile = () => {
       const profileRes = await axios.put(
         `${BACKEND_URL}/api/avatar/update-profile`,
         { name: name.trim(), semester },
-        { headers }
+        { headers },
       );
 
       if (profileRes.data?.success) {
         const updatedUserData = profileRes.data.user || {};
         const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-        
+
         localStorage.setItem(
           "user",
           JSON.stringify({
@@ -498,7 +496,7 @@ const Profile = () => {
             name: updatedUserData.name || name,
             semester: updatedUserData.semester || semester,
             isPrivate: isPrivate,
-          })
+          }),
         );
 
         message.success("Profile updated successfully!");
@@ -545,7 +543,13 @@ const Profile = () => {
           >
             Profile Settings
           </h2>
-          <p style={{ color: isDarkMode ? "#94a3b8" : "#64748b", fontSize: "13px", margin: "4px 0 0" }}>
+          <p
+            style={{
+              color: isDarkMode ? "#94a3b8" : "#64748b",
+              fontSize: "13px",
+              margin: "4px 0 0",
+            }}
+          >
             Manage your personal academic identity and avatar
           </p>
         </div>
@@ -553,10 +557,14 @@ const Profile = () => {
         <div
           style={{
             background: isDarkMode ? "#0c0d1e" : "#ffffff",
-            border: isDarkMode ? "1px solid rgba(255, 255, 255, 0.08)" : "1px solid #e2e8f0",
+            border: isDarkMode
+              ? "1px solid rgba(255, 255, 255, 0.08)"
+              : "1px solid #e2e8f0",
             borderRadius: "16px",
             padding: isMobile ? "20px 16px" : "28px 26px",
-            boxShadow: isDarkMode ? "0 20px 40px rgba(0, 0, 0, 0.6)" : "0 4px 20px rgba(0, 0, 0, 0.05)",
+            boxShadow: isDarkMode
+              ? "0 20px 40px rgba(0, 0, 0, 0.6)"
+              : "0 4px 20px rgba(0, 0, 0, 0.05)",
             width: "100%",
             boxSizing: "border-box",
           }}
@@ -567,7 +575,9 @@ const Profile = () => {
               flexDirection: isMobile ? "column" : "row",
               alignItems: "center",
               gap: "20px",
-              borderBottom: isDarkMode ? "1px solid rgba(255, 255, 255, 0.08)" : "1px solid #f1f5f9",
+              borderBottom: isDarkMode
+                ? "1px solid rgba(255, 255, 255, 0.08)"
+                : "1px solid #f1f5f9",
               paddingBottom: "24px",
               marginBottom: "24px",
               textAlign: isMobile ? "center" : "left",
@@ -597,25 +607,53 @@ const Profile = () => {
                   style={{ objectFit: "cover", cursor: "pointer" }}
                 />
               ) : (
-                <UserOutlined style={{ fontSize: "36px", color: isDarkMode ? "#64748b" : "#6366f1" }} />
+                <UserOutlined
+                  style={{
+                    fontSize: "36px",
+                    color: isDarkMode ? "#64748b" : "#6366f1",
+                  }}
+                />
               )}
             </div>
 
             <div style={{ flex: 1 }}>
-              <h4 style={{ margin: "0 0 2px", color: isDarkMode ? "#f8fafc" : "#0f172a", fontSize: "17px", fontWeight: 600 }}>
+              <h4
+                style={{
+                  margin: "0 0 2px",
+                  color: isDarkMode ? "#f8fafc" : "#0f172a",
+                  fontSize: "17px",
+                  fontWeight: 600,
+                }}
+              >
                 {name || "User Name"}
               </h4>
-              <span style={{ color: isDarkMode ? "#818cf8" : "#4f46e5", fontSize: "12.5px", display: "block", marginBottom: "12px", fontWeight: 500 }}>
+              <span
+                style={{
+                  color: isDarkMode ? "#818cf8" : "#4f46e5",
+                  fontSize: "12.5px",
+                  display: "block",
+                  marginBottom: "12px",
+                  fontWeight: 500,
+                }}
+              >
                 {agNumber}
               </span>
 
-              <Upload showUploadList={false} beforeUpload={handleImageSelect} accept="image/*">
+              <Upload
+                showUploadList={false}
+                beforeUpload={handleImageSelect}
+                accept="image/*"
+              >
                 <Button
                   icon={<UploadOutlined />}
                   size="small"
                   style={{
-                    background: isDarkMode ? "rgba(99, 102, 241, 0.12)" : "#e0e7ff",
-                    borderColor: isDarkMode ? "rgba(99, 102, 241, 0.3)" : "#c7d2fe",
+                    background: isDarkMode
+                      ? "rgba(99, 102, 241, 0.12)"
+                      : "#e0e7ff",
+                    borderColor: isDarkMode
+                      ? "rgba(99, 102, 241, 0.3)"
+                      : "#c7d2fe",
                     color: isDarkMode ? "#a5b4fc" : "#4338ca",
                     borderRadius: "6px",
                     fontWeight: 500,
@@ -627,9 +665,19 @@ const Profile = () => {
             </div>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "16px" }}
+          >
             <div>
-              <label style={{ display: "block", color: isDarkMode ? "#cbd5e1" : "#334155", fontSize: "13px", fontWeight: 600, marginBottom: "6px" }}>
+              <label
+                style={{
+                  display: "block",
+                  color: isDarkMode ? "#cbd5e1" : "#334155",
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  marginBottom: "6px",
+                }}
+              >
                 Email Address (Permanent)
               </label>
               <Input
@@ -644,7 +692,15 @@ const Profile = () => {
             </div>
 
             <div>
-              <label style={{ display: "block", color: isDarkMode ? "#cbd5e1" : "#334155", fontSize: "13px", fontWeight: 600, marginBottom: "6px" }}>
+              <label
+                style={{
+                  display: "block",
+                  color: isDarkMode ? "#cbd5e1" : "#334155",
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  marginBottom: "6px",
+                }}
+              >
                 AG Number (Read-only / Fixed at registration)
               </label>
               <Input
@@ -661,7 +717,15 @@ const Profile = () => {
             </div>
 
             <div>
-              <label style={{ display: "block", color: isDarkMode ? "#cbd5e1" : "#334155", fontSize: "13px", fontWeight: 600, marginBottom: "6px" }}>
+              <label
+                style={{
+                  display: "block",
+                  color: isDarkMode ? "#cbd5e1" : "#334155",
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  marginBottom: "6px",
+                }}
+              >
                 Full Name
               </label>
               <Input
@@ -677,7 +741,15 @@ const Profile = () => {
             </div>
 
             <div>
-              <label style={{ display: "block", color: isDarkMode ? "#cbd5e1" : "#334155", fontSize: "13px", fontWeight: 600, marginBottom: "6px" }}>
+              <label
+                style={{
+                  display: "block",
+                  color: isDarkMode ? "#cbd5e1" : "#334155",
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  marginBottom: "6px",
+                }}
+              >
                 Current Semester
               </label>
               <Select
@@ -701,14 +773,29 @@ const Profile = () => {
                 marginTop: "4px",
                 padding: "12px 14px",
                 background: isDarkMode ? "#14182b" : "#f8fafc",
-                border: isDarkMode ? "1px solid rgba(255, 255, 255, 0.08)" : "1px solid #e2e8f0",
+                border: isDarkMode
+                  ? "1px solid rgba(255, 255, 255, 0.08)"
+                  : "1px solid #e2e8f0",
                 borderRadius: "10px",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <LockOutlined style={{ fontSize: "18px", color: isDarkMode ? "#818cf8" : "#4f46e5" }} />
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "10px" }}
+              >
+                <LockOutlined
+                  style={{
+                    fontSize: "18px",
+                    color: isDarkMode ? "#818cf8" : "#4f46e5",
+                  }}
+                />
                 <div>
-                  <div style={{ fontWeight: 600, color: isDarkMode ? "#fff" : "#0f172a", fontSize: "13.5px" }}>
+                  <div
+                    style={{
+                      fontWeight: 600,
+                      color: isDarkMode ? "#fff" : "#0f172a",
+                      fontSize: "13.5px",
+                    }}
+                  >
                     Private Account
                   </div>
                   <div style={{ fontSize: "11.5px", color: "#94a3b8" }}>
