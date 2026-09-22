@@ -148,7 +148,7 @@ const Register = () => {
                   noStyle
                 >
                   <Input
-                    placeholder="7659"
+                    placeholder="0000"
                     maxLength={4}
                     size="large"
                     style={{ ...dynamicInputStyle, textAlign: "center" }}

@@ -120,7 +120,7 @@ const Login = () => {
                     style={{ color: isDarkMode ? "#64748b" : "#94a3b8" }}
                   />
                 }
-                placeholder="student@gmail.com or 2025AG7659"
+                placeholder="student@gmail.com or 2025AG0000"
                 size="large"
                 style={{
                   backgroundColor: isDarkMode ? "#060713" : "#ffffff",
