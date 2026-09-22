@@ -22,7 +22,7 @@
 //   return isArray ? result : result[0];
 // };
 
-// // 1. Search Users (Name, Email, AG Number)
+// // 1. Search Users
 // export const searchUser = async (req, res) => {
 //   try {
 //     const { query } = req.query;
@@ -45,7 +45,7 @@
 //   }
 // };
 
-// // 2. Access / Create Direct Chat
+// // 2. Access / Create Direct Chat (Unhide if hidden previously)
 // export const accessDirectChat = async (req, res) => {
 //   try {
 //     const { recipientId } = req.body;
@@ -60,6 +60,12 @@
 //     if (!chatRoom) {
 //       chatRoom = await ChatRoom.create({ type: "direct", participants: [myId, recipientId] });
 //       chatRoom = await ChatRoom.findById(chatRoom._id).populate("participants", "name email agNumber semester");
+//     } else {
+//       // Agar pehle hide ki thi, toh naya message ya access karne par unhide kar do
+//       if (chatRoom.hiddenFor && chatRoom.hiddenFor.includes(myId)) {
+//         chatRoom.hiddenFor = chatRoom.hiddenFor.filter(id => String(id) !== String(myId));
+//         await chatRoom.save();
+//       }
 //     }
 
 //     const populatedParticipants = await attachAvatars(chatRoom.participants);
@@ -72,11 +78,14 @@
 //   }
 // };
 
-// // 3. Get User Chats
+// // 3. Get User Chats (Excluding chats hidden by current user)
 // export const getUserChats = async (req, res) => {
 //   try {
 //     const myId = req.user?._id || req.user?.id;
-//     const chats = await ChatRoom.find({ participants: myId })
+//     const chats = await ChatRoom.find({
+//       participants: myId,
+//       hiddenFor: { $ne: myId } // 👈 Jo chats is user ne hide ki hain woh list mein nahi aayengi
+//     })
 //       .populate("participants", "name email agNumber semester")
 //       .sort({ updatedAt: -1 });
 
@@ -106,7 +115,28 @@
 //   }
 // };
 
-// // 4. Get Chat Messages
+// // 4. Hide / Delete Chat for Me (WhatsApp style)
+// export const hideChat = async (req, res) => {
+//   try {
+//     const { chatRoomId } = req.params;
+//     const myId = req.user?._id || req.user?.id;
+
+//     const chatRoom = await ChatRoom.findById(chatRoomId);
+//     if (!chatRoom) return res.status(404).json({ success: false, message: "Chat room not found" });
+
+//     // Add user to hiddenFor array if not already present
+//     if (!chatRoom.hiddenFor.includes(myId)) {
+//       chatRoom.hiddenFor.push(myId);
+//       await chatRoom.save();
+//     }
+
+//     return res.status(200).json({ success: true, message: "Chat deleted for you" });
+//   } catch (error) {
+//     return res.status(500).json({ success: false, message: error.message });
+//   }
+// };
+
+// // 5. Get Chat Messages
 // export const getChatMessages = async (req, res) => {
 //   try {
 //     const { chatRoomId } = req.params;
@@ -216,7 +246,7 @@ const attachAvatars = async (users) => {
   return isArray ? result : result[0];
 };
 
-// 1. Search Users
+// 1. Search Users (Excluding Private Accounts)
 export const searchUser = async (req, res) => {
   try {
     const { query } = req.query;
@@ -225,12 +255,13 @@ export const searchUser = async (req, res) => {
 
     const users = await User.find({
       _id: { $ne: myId },
+      isPrivate: { $ne: true }, // 👈 Sirf wahi log aayenge jinhone account private nahi kiya
       $or: [
-        { email: { $regex: query, $options: "i" } },
-        { name: { $regex: query, $options: "i" } },
-        { agNumber: { $regex: query, $options: "i" } }
+        { email: { $regex: query,$options: "i" } },
+        { name: { $regex: query,$options: "i" } },
+        { agNumber: { $regex: query,$options: "i" } }
       ]
-    }).select("name email agNumber semester");
+    }).select("name email agNumber semester isPrivate");
 
     const usersWithAvatars = await attachAvatars(users);
     return res.status(200).json({ success: true, users: usersWithAvatars });
@@ -239,7 +270,29 @@ export const searchUser = async (req, res) => {
   }
 };
 
-// 2. Access / Create Direct Chat (Unhide if hidden previously)
+// 2. Update Privacy Settings
+export const updatePrivacy = async (req, res) => {
+  try {
+    const { isPrivate } = req.body;
+    const myId = req.user?._id || req.user?.id;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      myId,
+      { isPrivate },
+      { new: true }
+    ).select("-password");
+
+    return res.status(200).json({
+      success: true,
+      message: `Account is now ${isPrivate ? "Private" : "Public"}`,
+      user: updatedUser,
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// 3. Access / Create Direct Chat (Unhide if hidden previously)
 export const accessDirectChat = async (req, res) => {
   try {
     const { recipientId } = req.body;
@@ -255,7 +308,6 @@ export const accessDirectChat = async (req, res) => {
       chatRoom = await ChatRoom.create({ type: "direct", participants: [myId, recipientId] });
       chatRoom = await ChatRoom.findById(chatRoom._id).populate("participants", "name email agNumber semester");
     } else {
-      // Agar pehle hide ki thi, toh naya message ya access karne par unhide kar do
       if (chatRoom.hiddenFor && chatRoom.hiddenFor.includes(myId)) {
         chatRoom.hiddenFor = chatRoom.hiddenFor.filter(id => String(id) !== String(myId));
         await chatRoom.save();
@@ -272,13 +324,13 @@ export const accessDirectChat = async (req, res) => {
   }
 };
 
-// 3. Get User Chats (Excluding chats hidden by current user)
+// 4. Get User Chats (Excluding chats hidden by current user)
 export const getUserChats = async (req, res) => {
   try {
     const myId = req.user?._id || req.user?.id;
     const chats = await ChatRoom.find({
       participants: myId,
-      hiddenFor: { $ne: myId } // 👈 Jo chats is user ne hide ki hain woh list mein nahi aayengi
+      hiddenFor: { $ne: myId }
     })
       .populate("participants", "name email agNumber semester")
       .sort({ updatedAt: -1 });
@@ -309,7 +361,7 @@ export const getUserChats = async (req, res) => {
   }
 };
 
-// 4. Hide / Delete Chat for Me (WhatsApp style)
+// 5. Hide / Delete Chat for Me (WhatsApp style)
 export const hideChat = async (req, res) => {
   try {
     const { chatRoomId } = req.params;
@@ -318,7 +370,6 @@ export const hideChat = async (req, res) => {
     const chatRoom = await ChatRoom.findById(chatRoomId);
     if (!chatRoom) return res.status(404).json({ success: false, message: "Chat room not found" });
 
-    // Add user to hiddenFor array if not already present
     if (!chatRoom.hiddenFor.includes(myId)) {
       chatRoom.hiddenFor.push(myId);
       await chatRoom.save();
@@ -330,7 +381,7 @@ export const hideChat = async (req, res) => {
   }
 };
 
-// 5. Get Chat Messages
+// 6. Get Chat Messages
 export const getChatMessages = async (req, res) => {
   try {
     const { chatRoomId } = req.params;

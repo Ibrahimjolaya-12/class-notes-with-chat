@@ -38,7 +38,9 @@ import axios from "axios";
 import { socket } from "../../utils/socket";
 import { useTheme } from "../../context/ThemeContext";
 
-const BACKEND_URL = import.meta.env.VITE_API_URL || "https://class-notes-with-chat-production.up.railway.app";
+const BACKEND_URL =
+  import.meta.env.VITE_API_URL ||
+  "https://class-notes-with-chat-production.up.railway.app";
 const EMOJI_REACTIONS = ["👍", "❤️", "😂", "😮", "😢"];
 
 // Voice Note Bubble component
@@ -91,7 +93,15 @@ const VoiceNoteBubble = ({ audioUrl, isMe, isDarkMode }) => {
         {isPlaying ? "⏸" : "▶"}
       </Button>
 
-      <div style={{ flex: 1, display: "flex", alignItems: "center", gap: "2px", overflow: "hidden" }}>
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          alignItems: "center",
+          gap: "2px",
+          overflow: "hidden",
+        }}
+      >
         {[40, 70, 30, 90, 60, 100, 45, 80, 50, 65, 35].map((h, i) => (
           <span
             key={i}
@@ -102,13 +112,20 @@ const VoiceNoteBubble = ({ audioUrl, isMe, isDarkMode }) => {
               background: isMe
                 ? "rgba(255,255,255,0.75)"
                 : isDarkMode
-                ? "#818cf8"
-                : "#6366f1",
+                  ? "#818cf8"
+                  : "#6366f1",
             }}
           />
         ))}
       </div>
-      <span style={{ fontSize: "10px", opacity: 0.85, fontWeight: 500, flexShrink: 0 }}>
+      <span
+        style={{
+          fontSize: "10px",
+          opacity: 0.85,
+          fontWeight: 500,
+          flexShrink: 0,
+        }}
+      >
         Voice
       </span>
     </div>
@@ -206,9 +223,12 @@ const Chat = () => {
   const handleDeleteChatRoom = async (e, roomId) => {
     e.stopPropagation();
     try {
-      const res = await axios.delete(`${BACKEND_URL}/api/chats/room/${roomId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.delete(
+        `${BACKEND_URL}/api/chats/room/${roomId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
       if (res.data.success) {
         message.success("Chat deleted for you");
         setChats((prev) => prev.filter((c) => c._id !== roomId));
@@ -230,22 +250,22 @@ const Chat = () => {
 
       if (currentOpenChat && String(currentOpenChat._id) === incomingRoomId) {
         setMessages((prev) =>
-          prev.some((m) => m._id === data._id) ? prev : [...prev, data]
+          prev.some((m) => m._id === data._id) ? prev : [...prev, data],
         );
       }
 
       setChats((prevChats) => {
         const chatIndex = prevChats.findIndex(
-          (c) => String(c._id) === incomingRoomId
+          (c) => String(c._id) === incomingRoomId,
         );
         const lastPreview =
           data.messageType === "image"
             ? "📷 Photo"
             : data.messageType === "pdf"
-            ? "📄 PDF Document"
-            : data.messageType === "audio"
-            ? "🎤 Voice Note"
-            : data.text || data.message;
+              ? "📄 PDF Document"
+              : data.messageType === "audio"
+                ? "🎤 Voice Note"
+                : data.text || data.message;
 
         if (chatIndex !== -1) {
           const updatedChat = { ...prevChats[chatIndex] };
@@ -263,7 +283,7 @@ const Chat = () => {
           }
 
           const otherChats = prevChats.filter(
-            (c) => String(c._id) !== incomingRoomId
+            (c) => String(c._id) !== incomingRoomId,
           );
           return [updatedChat, ...otherChats];
         } else {
@@ -285,8 +305,8 @@ const Chat = () => {
                 fileUrl: "",
                 reactions: [],
               }
-            : m
-        )
+            : m,
+        ),
       );
       fetchMyChats();
     };
@@ -294,8 +314,8 @@ const Chat = () => {
     const handleMessageReacted = ({ messageId, reactions }) => {
       setMessages((prev) =>
         prev.map((msg) =>
-          String(msg._id) === String(messageId) ? { ...msg, reactions } : msg
-        )
+          String(msg._id) === String(messageId) ? { ...msg, reactions } : msg,
+        ),
       );
     };
 
@@ -332,7 +352,7 @@ const Chat = () => {
           `${BACKEND_URL}/api/chats/messages/${activeChat._id}`,
           {
             headers: { Authorization: `Bearer ${token}` },
-          }
+          },
         );
         if (res.data.success) {
           setMessages(res.data.messages);
@@ -340,8 +360,8 @@ const Chat = () => {
             prev.map((c) =>
               String(c._id) === String(activeChat._id)
                 ? { ...c, unreadCount: 0 }
-                : c
-            )
+                : c,
+            ),
           );
         }
       } catch (err) {
@@ -366,11 +386,12 @@ const Chat = () => {
         `${BACKEND_URL}/api/chats/search?query=${query}`,
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
       if (res.data.success) {
         const uniqueUsers = res.data.users.filter(
-          (v, i, a) => a.findIndex((t) => String(t._id) === String(v._id)) === i
+          (v, i, a) =>
+            a.findIndex((t) => String(t._id) === String(v._id)) === i,
         );
         setSearchResults(uniqueUsers);
       }
@@ -384,7 +405,7 @@ const Chat = () => {
       const res = await axios.post(
         `${BACKEND_URL}/api/chats/direct`,
         { recipientId },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       if (res.data.success) {
         setActiveChat(res.data.chatRoom);
@@ -430,7 +451,7 @@ const Chat = () => {
             Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
           },
-        }
+        },
       );
 
       if (res.data.success) {
@@ -462,7 +483,7 @@ const Chat = () => {
         `${BACKEND_URL}/api/chats/messages/${msgId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
       if (res.data.success) {
         socket.emit("delete_message", {
@@ -482,7 +503,7 @@ const Chat = () => {
         `${BACKEND_URL}/api/chats/clear/${activeChat._id}`,
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
       if (res.data.success) {
         socket.emit("clear_chat", activeChat._id);
@@ -512,9 +533,11 @@ const Chat = () => {
       mediaRecorderRef.current.ondataavailable = (event) => {
         if (event.data.size > 0) audioChunksRef.current.push(event.data);
       };
-      
+
       mediaRecorderRef.current.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+        const audioBlob = new Blob(audioChunksRef.current, {
+          type: "audio/webm",
+        });
         const audioUrl = URL.createObjectURL(audioBlob);
         setRecordedAudioBlob(audioBlob);
         setRecordedAudioUrl(audioUrl);
@@ -557,7 +580,7 @@ const Chat = () => {
             Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
           },
-        }
+        },
       );
       if (res.data.success) {
         handleSendMessage(null, {
@@ -610,7 +633,7 @@ const Chat = () => {
   };
 
   const otherParticipant = activeChat?.participants?.find(
-    (p) => String(p._id) !== myId
+    (p) => String(p._id) !== myId,
   );
   const isUserOnline = otherParticipant
     ? onlineUsers.includes(String(otherParticipant._id))
@@ -627,7 +650,10 @@ const Chat = () => {
       onClick={() => setActiveReactionMsgId(null)}
       style={{
         display: "flex",
-        height: window.innerWidth < 1024 ? "calc(100dvh - 145px)" : "calc(100vh - 100px)",
+        height:
+          window.innerWidth < 1024
+            ? "calc(100dvh - 145px)"
+            : "calc(100vh - 100px)",
         width: "100%",
         maxWidth: "100%",
         background: isDarkMode ? "#080816" : "#f8fafc",
@@ -642,8 +668,10 @@ const Chat = () => {
       {/* Sidebar: Chats List */}
       <div
         style={{
-          width: window.innerWidth < 1024 ? (activeChat ? "0%" : "100%") : "340px",
-          minWidth: window.innerWidth < 1024 ? (activeChat ? "0%" : "100%") : "340px",
+          width:
+            window.innerWidth < 1024 ? (activeChat ? "0%" : "100%") : "340px",
+          minWidth:
+            window.innerWidth < 1024 ? (activeChat ? "0%" : "100%") : "340px",
           maxWidth: window.innerWidth < 1024 ? "100%" : "360px",
           borderRight: isDarkMode ? "1px solid #1e2652" : "1px solid #e2e8f0",
           display: window.innerWidth < 1024 && activeChat ? "none" : "flex",
@@ -656,7 +684,9 @@ const Chat = () => {
         <div
           style={{
             padding: "16px",
-            borderBottom: isDarkMode ? "1px solid #1e2652" : "1px solid #f1f5f9",
+            borderBottom: isDarkMode
+              ? "1px solid #1e2652"
+              : "1px solid #f1f5f9",
           }}
         >
           <Input
@@ -697,11 +727,30 @@ const Chat = () => {
               >
                 {renderAvatar(user, "default", true)}
                 <div style={{ overflow: "hidden" }}>
-                  <div style={{ fontWeight: 600, fontSize: "14px", textOverflow: "ellipsis", whiteSpace: "nowrap", overflow: "hidden" }}>
+                  <div
+                    style={{
+                      fontWeight: 600,
+                      fontSize: "14px",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                    }}
+                  >
                     {user.name}
                   </div>
-                  <div style={{ fontSize: "11px", color: "#818cf8", fontWeight: 500, textOverflow: "ellipsis", whiteSpace: "nowrap", overflow: "hidden" }}>
-                    {user.agNumber ? `${user.agNumber} • ${user.email}` : user.email}
+                  <div
+                    style={{
+                      fontSize: "11px",
+                      color: "#818cf8",
+                      fontWeight: 500,
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {user.agNumber
+                      ? `${user.agNumber} • ${user.email}`
+                      : user.email}
                   </div>
                 </div>
               </div>
@@ -728,7 +777,7 @@ const Chat = () => {
           ) : (
             chats.map((chat) => {
               const chatOtherUser = chat.participants?.find(
-                (p) => String(p._id) !== myId
+                (p) => String(p._id) !== myId,
               );
               const displayName =
                 chat.type === "group"
@@ -825,12 +874,12 @@ const Chat = () => {
                             : "#94a3b8",
                         }}
                       >
-                       {new Date(
-  chat.lastMessageTime || Date.now() // 👈 Yahan Date.now() karna hai
-).toLocaleTimeString([], {
-  hour: "2-digit",
-  minute: "2-digit",
-})}
+                        {new Date(
+                          chat.lastMessageTime || Date.now(), // 👈 Yahan Date.now() karna hai
+                        ).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
                       </span>
                       {chat.unreadCount > 0 && (
                         <span
@@ -860,14 +909,21 @@ const Chat = () => {
                               <Popconfirm
                                 title="Delete Chat"
                                 description="Delete this conversation for you?"
-                                onConfirm={(e) => handleDeleteChatRoom(e, chat._id)}
+                                onConfirm={(e) =>
+                                  handleDeleteChatRoom(e, chat._id)
+                                }
                                 okText="Yes"
                                 cancelText="No"
                                 okButtonProps={{ danger: true }}
                               >
                                 <span
                                   onClick={(e) => e.stopPropagation()}
-                                  style={{ color: "#ef4444", display: "flex", alignItems: "center", gap: "6px" }}
+                                  style={{
+                                    color: "#ef4444",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "6px",
+                                  }}
                                 >
                                   <DeleteOutlined /> Delete Chat
                                 </span>
@@ -882,7 +938,14 @@ const Chat = () => {
                         type="text"
                         shape="circle"
                         size="small"
-                        icon={<MoreOutlined style={{ fontSize: "16px", color: isDarkMode ? "#94a3b8" : "#64748b" }} />}
+                        icon={
+                          <MoreOutlined
+                            style={{
+                              fontSize: "16px",
+                              color: isDarkMode ? "#94a3b8" : "#64748b",
+                            }}
+                          />
+                        }
                         onClick={(e) => e.stopPropagation()}
                       />
                     </Dropdown>
@@ -913,7 +976,9 @@ const Chat = () => {
             <div
               style={{
                 padding: "12px 16px",
-                borderBottom: isDarkMode ? "1px solid #1e2652" : "1px solid #e2e8f0",
+                borderBottom: isDarkMode
+                  ? "1px solid #1e2652"
+                  : "1px solid #e2e8f0",
                 background: isDarkMode ? "#0d1026" : "#ffffff",
                 display: "flex",
                 alignItems: "center",
@@ -992,7 +1057,14 @@ const Chat = () => {
                     {
                       key: "profile",
                       label: (
-                        <span onClick={() => setIsProfileModalOpen(true)} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <span
+                          onClick={() => setIsProfileModalOpen(true)}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 6,
+                          }}
+                        >
                           <UserOutlined /> View Profile
                         </span>
                       ),
@@ -1095,7 +1167,7 @@ const Chat = () => {
                           icon: <CopyOutlined />,
                           onClick: () => {
                             navigator.clipboard.writeText(
-                              msg.text || msg.fileUrl || ""
+                              msg.text || msg.fileUrl || "",
                             );
                             message.success("Copied to clipboard");
                           },
@@ -1167,7 +1239,8 @@ const Chat = () => {
                                 transition: "transform 0.15s",
                               }}
                               onMouseEnter={(e) =>
-                                (e.currentTarget.style.transform = "scale(1.25)")
+                                (e.currentTarget.style.transform =
+                                  "scale(1.25)")
                               }
                               onMouseLeave={(e) =>
                                 (e.currentTarget.style.transform = "scale(1)")
@@ -1191,17 +1264,17 @@ const Chat = () => {
                                 ? "#121829"
                                 : "#e2e8f0"
                               : isMe
-                              ? "#6366f1"
-                              : isDarkMode
-                              ? "#1e2652"
-                              : "#ffffff",
+                                ? "#6366f1"
+                                : isDarkMode
+                                  ? "#1e2652"
+                                  : "#ffffff",
                             color: isDeleted
                               ? "#94a3b8"
                               : isMe
-                              ? "#ffffff"
-                              : isDarkMode
-                              ? "#fff"
-                              : "#0f172a",
+                                ? "#ffffff"
+                                : isDarkMode
+                                  ? "#fff"
+                                  : "#0f172a",
                             padding: "8px 12px",
                             borderRadius: isMe
                               ? "16px 16px 4px 16px"
@@ -1212,8 +1285,8 @@ const Chat = () => {
                             border: isMe
                               ? "none"
                               : isDarkMode
-                              ? "1px solid #2a3463"
-                              : "1px solid #e2e8f0",
+                                ? "1px solid #2a3463"
+                                : "1px solid #e2e8f0",
                             wordBreak: "break-word",
                             position: "relative",
                             fontStyle: isDeleted ? "italic" : "normal",
@@ -1326,7 +1399,7 @@ const Chat = () => {
                                     onClick={() => {
                                       setPreviewPdfUrl(msg.fileUrl);
                                       setPreviewPdfTitle(
-                                        msg.text || "Document Preview"
+                                        msg.text || "Document Preview",
                                       );
                                     }}
                                     style={{
@@ -1336,8 +1409,8 @@ const Chat = () => {
                                       background: isMe
                                         ? "rgba(255, 255, 255, 0.15)"
                                         : isDarkMode
-                                        ? "#14182b"
-                                        : "#f1f5f9",
+                                          ? "#14182b"
+                                          : "#f1f5f9",
                                       padding: "6px 10px",
                                       borderRadius: "8px",
                                       cursor: "pointer",
@@ -1368,8 +1441,8 @@ const Chat = () => {
                                           color: isMe
                                             ? "#fff"
                                             : isDarkMode
-                                            ? "#fff"
-                                            : "#0f172a",
+                                              ? "#fff"
+                                              : "#0f172a",
                                         }}
                                       >
                                         {msg.text || "PDF Document"}
@@ -1428,7 +1501,7 @@ const Chat = () => {
                                 }}
                               >
                                 {new Date(
-                                  msg.createdAt || Date().now()
+                                  msg.createdAt || Date().now(),
                                 ).toLocaleTimeString([], {
                                   hour: "2-digit",
                                   minute: "2-digit",
@@ -1546,7 +1619,17 @@ const Chat = () => {
                   />
                   <Button
                     type="text"
-                    icon={isPreviewPlaying ? <PauseCircleOutlined style={{ fontSize: "20px", color: "#6366f1" }} /> : <PlayCircleOutlined style={{ fontSize: "20px", color: "#6366f1" }} />}
+                    icon={
+                      isPreviewPlaying ? (
+                        <PauseCircleOutlined
+                          style={{ fontSize: "20px", color: "#6366f1" }}
+                        />
+                      ) : (
+                        <PlayCircleOutlined
+                          style={{ fontSize: "20px", color: "#6366f1" }}
+                        />
+                      )
+                    }
                     onClick={() => {
                       if (!previewAudioRef.current) return;
                       if (isPreviewPlaying) {
@@ -1559,7 +1642,14 @@ const Chat = () => {
                     }}
                     style={{ padding: 0, height: "auto" }}
                   />
-                  <span style={{ fontSize: "12px", fontWeight: 600, color: isDarkMode ? "#fff" : "#0f172a", flex: 1 }}>
+                  <span
+                    style={{
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      color: isDarkMode ? "#fff" : "#0f172a",
+                      flex: 1,
+                    }}
+                  >
                     Voice Note Ready 🎙️
                   </span>
                   <Tooltip title="Discard">
@@ -1638,7 +1728,9 @@ const Chat = () => {
                 />
               ) : (
                 <>
-                  <Tooltip title={isRecording ? "Stop Recording" : "Record Voice"}>
+                  <Tooltip
+                    title={isRecording ? "Stop Recording" : "Record Voice"}
+                  >
                     <Button
                       type="text"
                       style={{ padding: "0 6px" }}
@@ -1696,7 +1788,13 @@ const Chat = () => {
             }}
           >
             <div style={{ fontSize: "40px", marginBottom: "8px" }}>💬</div>
-            <h3 style={{ color: isDarkMode ? "#fff" : "#0f172a", margin: 0, fontSize: "16px" }}>
+            <h3
+              style={{
+                color: isDarkMode ? "#fff" : "#0f172a",
+                margin: 0,
+                fontSize: "16px",
+              }}
+            >
               ClassNotes Student Chat
             </h3>
             <p style={{ fontSize: "12px", marginTop: "4px" }}>
@@ -1797,19 +1895,31 @@ const Chat = () => {
         styles={{
           mask: {
             backdropFilter: "blur(8px)",
-            backgroundColor: isDarkMode ? "rgba(0, 0, 0, 0.82)" : "rgba(15, 23, 42, 0.5)",
+            backgroundColor: isDarkMode
+              ? "rgba(0, 0, 0, 0.82)"
+              : "rgba(15, 23, 42, 0.5)",
           },
           content: {
             backgroundColor: isDarkMode ? "#0c0d1e" : "#ffffff",
-            border: isDarkMode ? "1px solid rgba(255, 255, 255, 0.1)" : "1px solid #e2e8f0",
+            border: isDarkMode
+              ? "1px solid rgba(255, 255, 255, 0.1)"
+              : "1px solid #e2e8f0",
             borderRadius: "20px",
             padding: "24px 20px",
-            boxShadow: isDarkMode ? "0 20px 45px rgba(0,0,0,0.7)" : "0 12px 30px rgba(0,0,0,0.08)",
+            boxShadow: isDarkMode
+              ? "0 20px 45px rgba(0,0,0,0.7)"
+              : "0 12px 30px rgba(0,0,0,0.08)",
           },
         }}
       >
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
-          
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            textAlign: "center",
+          }}
+        >
           <div
             style={{
               position: "relative",
@@ -1835,14 +1945,26 @@ const Chat = () => {
                 style={{ objectFit: "cover" }}
                 preview={{
                   mask: (
-                    <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "11px" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "4px",
+                        fontSize: "11px",
+                      }}
+                    >
                       <EyeOutlined /> Full Photo
                     </div>
                   ),
                 }}
               />
             ) : (
-              <UserOutlined style={{ fontSize: "42px", color: isDarkMode ? "#64748b" : "#6366f1" }} />
+              <UserOutlined
+                style={{
+                  fontSize: "42px",
+                  color: isDarkMode ? "#64748b" : "#6366f1",
+                }}
+              />
             )}
           </div>
 
@@ -1879,20 +2001,48 @@ const Chat = () => {
             ● {isUserOnline ? "Online Now" : "Offline"}
           </Tag>
 
-          <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "10px", textAlign: "left" }}>
-            
+          <div
+            style={{
+              width: "100%",
+              display: "flex",
+              flexDirection: "column",
+              gap: "10px",
+              textAlign: "left",
+            }}
+          >
             <div
               style={{
                 background: isDarkMode ? "#080816" : "#f8fafc",
-                border: isDarkMode ? "1px solid rgba(255, 255, 255, 0.08)" : "1px solid #e2e8f0",
+                border: isDarkMode
+                  ? "1px solid rgba(255, 255, 255, 0.08)"
+                  : "1px solid #e2e8f0",
                 borderRadius: "10px",
                 padding: "10px 14px",
               }}
             >
-              <div style={{ fontSize: "11px", color: "#94a3b8", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px", display: "flex", alignItems: "center", gap: "6px", marginBottom: "3px" }}>
+              <div
+                style={{
+                  fontSize: "11px",
+                  color: "#94a3b8",
+                  fontWeight: 600,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.5px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  marginBottom: "3px",
+                }}
+              >
                 <MailOutlined /> Email Address
               </div>
-              <div style={{ fontSize: "13.5px", color: isDarkMode ? "#cbd5e1" : "#334155", fontWeight: 500, wordBreak: "break-all" }}>
+              <div
+                style={{
+                  fontSize: "13.5px",
+                  color: isDarkMode ? "#cbd5e1" : "#334155",
+                  fontWeight: 500,
+                  wordBreak: "break-all",
+                }}
+              >
                 {otherParticipant?.email || "No email available"}
               </div>
             </div>
@@ -1900,15 +2050,35 @@ const Chat = () => {
             <div
               style={{
                 background: isDarkMode ? "#080816" : "#f8fafc",
-                border: isDarkMode ? "1px solid rgba(255, 255, 255, 0.08)" : "1px solid #e2e8f0",
+                border: isDarkMode
+                  ? "1px solid rgba(255, 255, 255, 0.08)"
+                  : "1px solid #e2e8f0",
                 borderRadius: "10px",
                 padding: "10px 14px",
               }}
             >
-              <div style={{ fontSize: "11px", color: "#94a3b8", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px", display: "flex", alignItems: "center", gap: "6px", marginBottom: "3px" }}>
+              <div
+                style={{
+                  fontSize: "11px",
+                  color: "#94a3b8",
+                  fontWeight: 600,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.5px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  marginBottom: "3px",
+                }}
+              >
                 <IdcardOutlined /> AG Number
               </div>
-              <div style={{ fontSize: "13.5px", color: isDarkMode ? "#818cf8" : "#4f46e5", fontWeight: 600 }}>
+              <div
+                style={{
+                  fontSize: "13.5px",
+                  color: isDarkMode ? "#818cf8" : "#4f46e5",
+                  fontWeight: 600,
+                }}
+              >
                 {otherParticipant?.agNumber || "Not Assigned"}
               </div>
             </div>
@@ -1916,15 +2086,35 @@ const Chat = () => {
             <div
               style={{
                 background: isDarkMode ? "#080816" : "#f8fafc",
-                border: isDarkMode ? "1px solid rgba(255, 255, 255, 0.08)" : "1px solid #e2e8f0",
+                border: isDarkMode
+                  ? "1px solid rgba(255, 255, 255, 0.08)"
+                  : "1px solid #e2e8f0",
                 borderRadius: "10px",
                 padding: "10px 14px",
               }}
             >
-              <div style={{ fontSize: "11px", color: "#94a3b8", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px", display: "flex", alignItems: "center", gap: "6px", marginBottom: "3px" }}>
+              <div
+                style={{
+                  fontSize: "11px",
+                  color: "#94a3b8",
+                  fontWeight: 600,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.5px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  marginBottom: "3px",
+                }}
+              >
                 <BookOutlined /> Enrolled Semester
               </div>
-              <div style={{ fontSize: "13.5px", color: isDarkMode ? "#818cf8" : "#4f46e5", fontWeight: 600 }}>
+              <div
+                style={{
+                  fontSize: "13.5px",
+                  color: isDarkMode ? "#818cf8" : "#4f46e5",
+                  fontWeight: 600,
+                }}
+              >
                 {otherParticipant?.semester || "Semester 1"}
               </div>
             </div>
@@ -1942,7 +2132,9 @@ const Chat = () => {
             <div
               style={{
                 background: isDarkMode ? "#14182b" : "#f1f5f9",
-                border: isDarkMode ? "1px solid rgba(255, 255, 255, 0.06)" : "1px solid #e2e8f0",
+                border: isDarkMode
+                  ? "1px solid rgba(255, 255, 255, 0.06)"
+                  : "1px solid #e2e8f0",
                 borderRadius: "8px",
                 padding: "8px",
                 fontSize: "11.5px",
@@ -1959,7 +2151,9 @@ const Chat = () => {
             <div
               style={{
                 background: isDarkMode ? "#14182b" : "#f1f5f9",
-                border: isDarkMode ? "1px solid rgba(255, 255, 255, 0.06)" : "1px solid #e2e8f0",
+                border: isDarkMode
+                  ? "1px solid rgba(255, 255, 255, 0.06)"
+                  : "1px solid #e2e8f0",
                 borderRadius: "8px",
                 padding: "8px",
                 fontSize: "11.5px",
@@ -1973,7 +2167,6 @@ const Chat = () => {
               <UserOutlined style={{ color: "#6366f1" }} /> Verified Student
             </div>
           </div>
-
         </div>
       </Modal>
     </div>
