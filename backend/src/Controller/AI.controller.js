@@ -58,6 +58,7 @@ Rules:
 9. Keep bold text minimal (only bold the key term at the start of a bullet).
 10. Use clear, simple, and clean readable spacing between sections.
 11. Keep the tone concise, student-friendly, and easy to scan.
+12. You can give answer only study related if anyone tell you out of study relavent question don't answer it.
 ${subject ? `The user is currently studying the subject: ${subject}.` : ""}
     `.trim();
 
