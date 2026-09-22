@@ -28,7 +28,7 @@ const Register = () => {
       const digitPart = values.agDigits?.trim();
 
       if (!yearPart || !digitPart || yearPart.length !== 4 || digitPart.length !== 4) {
-        message.error("AG Number must be strictly 4 digit year and 4 digit code (e.g. 2025 AG 7659)");
+        message.error("AG Number must be strictly 4 digit year and 4 digit code (e.g. 2025 AG 0000)");
         setLoading(false);
         return;
       }
