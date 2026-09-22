@@ -39,7 +39,6 @@ import { socket } from "../../utils/socket";
 import { useTheme } from "../../context/ThemeContext";
 
 const BACKEND_URL = import.meta.env.VITE_API_URL || "https://class-notes-with-chat-production.up.railway.app";
-// const BACKEND_URL = "http://localhost:5000";
 const EMOJI_REACTIONS = ["👍", "❤️", "😂", "😮", "😢"];
 
 // Voice Note Bubble component
@@ -203,6 +202,26 @@ const Chat = () => {
     }
   };
 
+  // WhatsApp style delete/hide chat room handler
+  const handleDeleteChatRoom = async (e, roomId) => {
+    e.stopPropagation();
+    try {
+      const res = await axios.delete(`${BACKEND_URL}/api/chats/room/${roomId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.data.success) {
+        message.success("Chat deleted for you");
+        setChats((prev) => prev.filter((c) => c._id !== roomId));
+        if (activeChat?._id === roomId) {
+          setActiveChat(null);
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      message.error("Failed to delete chat");
+    }
+  };
+
   useEffect(() => {
     const handleReceiveMessage = (data) => {
       const currentOpenChat = activeChatRef.current;
@@ -247,6 +266,9 @@ const Chat = () => {
             (c) => String(c._id) !== incomingRoomId
           );
           return [updatedChat, ...otherChats];
+        } else {
+          // Agar chat list mein nahi thi (hidden thi), toh naya message aane par dobara fetch kar lo
+          fetchMyChats();
         }
         return prevChats;
       });
@@ -347,7 +369,6 @@ const Chat = () => {
         }
       );
       if (res.data.success) {
-        // Prevent duplicate users in search results
         const uniqueUsers = res.data.users.filter(
           (v, i, a) => a.findIndex((t) => String(t._id) === String(v._id)) === i
         );
@@ -599,7 +620,7 @@ const Chat = () => {
     otherParticipant?.avatar ||
     otherParticipant?.avatarUrl ||
     otherParticipant?.profilePic ||
-    ";";
+    "";
 
   return (
     <div
@@ -781,45 +802,90 @@ const Chat = () => {
                   <div
                     style={{
                       display: "flex",
-                      flexDirection: "column",
-                      alignItems: "flex-end",
-                      gap: "4px",
+                      alignItems: "center",
+                      gap: "8px",
                       flexShrink: 0,
                     }}
                   >
-                    <span
+                    <div
                       style={{
-                        fontSize: "10px",
-                        color: isSelected
-                          ? isDarkMode
-                            ? "#cbd5e1"
-                            : "#4338ca"
-                          : "#94a3b8",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "flex-end",
+                        gap: "4px",
                       }}
                     >
-                      {new Date(
-                        chat.lastMessageTime || Date.now()
-                      ).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </span>
-                    {chat.unreadCount > 0 && (
                       <span
                         style={{
-                          background: "#10b981",
-                          color: "#fff",
                           fontSize: "10px",
-                          fontWeight: 700,
-                          padding: "1px 6px",
-                          borderRadius: "10px",
-                          minWidth: "18px",
-                          textAlign: "center",
+                          color: isSelected
+                            ? isDarkMode
+                              ? "#cbd5e1"
+                              : "#4338ca"
+                            : "#94a3b8",
                         }}
                       >
-                        {chat.unreadCount}
+                        {new Date(
+                          chat.lastMessageTime || Date().now()
+                        ).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
                       </span>
-                    )}
+                      {chat.unreadCount > 0 && (
+                        <span
+                          style={{
+                            background: "#10b981",
+                            color: "#fff",
+                            fontSize: "10px",
+                            fontWeight: 700,
+                            padding: "1px 6px",
+                            borderRadius: "10px",
+                            minWidth: "18px",
+                            textAlign: "center",
+                          }}
+                        >
+                          {chat.unreadCount}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* 👇 WhatsApp Style 3-Dots Dropdown Menu for Deleting Chat */}
+                    <Dropdown
+                      menu={{
+                        items: [
+                          {
+                            key: "delete",
+                            label: (
+                              <Popconfirm
+                                title="Delete Chat"
+                                description="Delete this conversation for you?"
+                                onConfirm={(e) => handleDeleteChatRoom(e, chat._id)}
+                                okText="Yes"
+                                cancelText="No"
+                                okButtonProps={{ danger: true }}
+                              >
+                                <span
+                                  onClick={(e) => e.stopPropagation()}
+                                  style={{ color: "#ef4444", display: "flex", alignItems: "center", gap: "6px" }}
+                                >
+                                  <DeleteOutlined /> Delete Chat
+                                </span>
+                              </Popconfirm>
+                            ),
+                          },
+                        ],
+                      }}
+                      trigger={["click"]}
+                    >
+                      <Button
+                        type="text"
+                        shape="circle"
+                        size="small"
+                        icon={<MoreOutlined style={{ fontSize: "16px", color: isDarkMode ? "#94a3b8" : "#64748b" }} />}
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </Dropdown>
                   </div>
                 </div>
               );
@@ -1362,7 +1428,7 @@ const Chat = () => {
                                 }}
                               >
                                 {new Date(
-                                  msg.createdAt || Date.now()
+                                  msg.createdAt || Date().now()
                                 ).toLocaleTimeString([], {
                                   hour: "2-digit",
                                   minute: "2-digit",
