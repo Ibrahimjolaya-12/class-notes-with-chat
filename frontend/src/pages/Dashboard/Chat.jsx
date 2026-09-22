@@ -825,12 +825,12 @@ const Chat = () => {
                             : "#94a3b8",
                         }}
                       >
-                        {new Date(
-                          chat.lastMessageTime || Date().now()
-                        ).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
+                       {new Date(
+  chat.lastMessageTime || Date.now() // 👈 Yahan Date.now() karna hai
+).toLocaleTimeString([], {
+  hour: "2-digit",
+  minute: "2-digit",
+})}
                       </span>
                       {chat.unreadCount > 0 && (
                         <span

@@ -10,16 +10,16 @@ const chatRoomSchema = new mongoose.Schema(
     },
     name: {
       type: String,
-      default: "", // Sirf groups ke liye naam hoga (jaise "FYP Study Group")
+      default: "",
     },
     admin: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // Group admin ki ID
+      ref: "User",
     },
     participants: [
       { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     ],
-    hiddenFor: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    hiddenFor: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // 👈 Sahi syntax
   },
   { timestamps: true },
 );
