@@ -175,7 +175,7 @@ export const forgotPassword = async (req, res) => {
           <div style="margin: 25px 0;">
             <a href="${resetUrl}" style="background: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Reset Password</a>
           </div>
-          <p style="font-size: 13px; color: #64748b;">This link is only valid for 15 minutes. If you have not requested a password reset, please ignore this email.</p>
+          <p style="font-size: 13px; color: #64748b;">This link is only valid for 15 minutes . If you have not requested a password reset, please ignore this email.</p>
         </div>
       `,
     };
