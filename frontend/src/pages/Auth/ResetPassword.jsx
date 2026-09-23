@@ -10,7 +10,7 @@ const { useBreakpoint } = Grid;
 
 // Live Vercel Backend URL with Vite Env fallback
 const BACKEND_URL =
-  import.meta.env.VITE_BACKEND_URL || "https://class-notes-backend.vercel.app";
+  import.meta.env.VITE_BACKEND_URL || "https://class-notes-with-chat-production.up.railway.app";
 
 const ResetPassword = () => {
   const { token } = useParams();
