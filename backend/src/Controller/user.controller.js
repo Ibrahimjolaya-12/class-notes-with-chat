@@ -152,7 +152,7 @@ export const forgotPassword = async (req, res) => {
 
     // Live URL Fallback
     const frontendUrl =
-      process.env.FRONTEND_URL || "https://class-notes-sable.vercel.app";
+      process.env.FRONTEND_URL || "https://class-notes-guard.vercel.app";
     const resetUrl = `${frontendUrl}/auth/reset-password/${resetToken}`;
 
     // Nodemailer transporter
@@ -171,11 +171,11 @@ export const forgotPassword = async (req, res) => {
       html: `
         <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; line-height: 1.5;">
           <h2 style="color: #4f46e5;">Password Reset Request</h2>
-          <p>Aapne ClassNotes account ka password reset karne ki request bheji thi. Naya password set karne ke liye neeche diye gaye button par click karein:</p>
+          <p>A password reset request has been sent to your Class Notes account. Click the button below to set a new password:</p>
           <div style="margin: 25px 0;">
             <a href="${resetUrl}" style="background: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Reset Password</a>
           </div>
-          <p style="font-size: 13px; color: #64748b;">Yeh link sirf 15 minutes ke liye valid hai. Agar aapne password reset request nahi ki thi, toh is email ko ignore karein.</p>
+          <p style="font-size: 13px; color: #64748b;">This link is only valid for 15 minutes. If you have not requested a password reset, please ignore this email.</p>
         </div>
       `,
     };
